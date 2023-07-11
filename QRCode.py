@@ -1,4 +1,6 @@
 # QR Code generator
+# pip install pyqrcode
+# pip install pillow
 
 import pyqrcode
 from PIL import ImageTk, Image
