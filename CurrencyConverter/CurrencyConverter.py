@@ -4,7 +4,7 @@
 # pip install DateTime
 
 
-from currency_converter import CurrencyConverter
+from currency_converter import CurrencyConverter, RateNotFoundError
 from currency_converter import ECB_URL
 from tkinter import *
 from tkinter import messagebox
@@ -36,15 +36,19 @@ lb_title.grid(row=0, column=0, columnspan=2)
 
 # Create Function : currencyConvert
 def currenConvert():
-    et_value_from = et_cv_from.get()
-    uppercase_from = et_value_from.upper()
-    et_value_to = et_cv_to.get()
-    uppercase_to = et_value_to.upper()
+    try:
+        et_value_from = et_cv_from.get()
+        uppercase_from = et_value_from.upper()
+        et_value_to = et_cv_to.get()
+        uppercase_to = et_value_to.upper()
 
-    currency_convert = c.convert(float(et_cv_amount.get()), str(uppercase_from), str(uppercase_to))
+        currency_convert = c.convert(float(et_cv_amount.get()), str(uppercase_from), str(uppercase_to))
 
-    currency_convert_str = "{:.3f}".format(currency_convert)
-    lb_cv_result.configure(text=currency_convert_str)
+        currency_convert_str = "{:,.3f}".format(currency_convert)
+        lb_cv_result.configure(text=currency_convert_str)
+
+    except ValueError:
+        messagebox.showerror("Invalid Currency", "Please check the currency")
 
 # Create Function : dateCheck
 def dateCheck():
@@ -54,12 +58,18 @@ def dateCheck():
         et_value_to = et_cv_to.get()
         uppercase_to = et_value_to.upper()
 
-        date_check_convert = c.convert(float(et_cv_amount.get()), str(uppercase_from), str(uppercase_to), date=date(int(et_date_year.get()), int(et_date_month.get()), int(et_date_date.get())))
+        et_amount = et_cv_amount.get()
+        if not et_amount.replace(".", "", 1).isdigit():
+            raise ValueError("Invalid amount input")
 
-        date_check_convert_str = "{:.3f}".format(date_check_convert)
-        lb_date_result.configure(text=float(date_check_convert_str))
+        date_check_convert = c.convert(float(et_amount), str(uppercase_from), str(uppercase_to), date=date(int(et_date_year.get()), int(et_date_month.get()), int(et_date_date.get())))
+
+        date_check_convert_str = "{:,.3f}".format(date_check_convert)
+        lb_date_result.configure(text=date_check_convert_str)
+    except RateNotFoundError:
+        messagebox.showerror("Date time not found!", "No exchange rate found for the specified currency and date")
     except ValueError:
-        messagebox.showerror("Converter", "Invalid date time input")
+        messagebox.showerror("Invalid date time", "Invalid date time")
 
 
 # Create Function : deleteConvertText
